@@ -6,6 +6,7 @@
 #include "params.h"
 #include "utils.h"
 #include "sha2.h"
+#include "quick_sha256.h"
 
 #if SPX_SHA512
 static void thash_512(unsigned char *out, const unsigned char *in, unsigned int inblocks,
@@ -26,16 +27,11 @@ void thash(unsigned char *out, const unsigned char *in, unsigned int inblocks,
 #endif
 
     unsigned char outbuf[SPX_SHA256_OUTPUT_BYTES];
-    uint8_t sha2_state[40];
-    SPX_VLA(uint8_t, buf, SPX_SHA256_ADDR_BYTES + inblocks*SPX_N);
-
-    /* Retrieve precomputed state containing pub_seed */
-    memcpy(sha2_state, ctx->state_seeded, 40 * sizeof(uint8_t));
-
-    memcpy(buf, addr, SPX_SHA256_ADDR_BYTES);
-    memcpy(buf + SPX_SHA256_ADDR_BYTES, in, inblocks * SPX_N);
-
-    sha256_inc_finalize(outbuf, sha2_state, buf, SPX_SHA256_ADDR_BYTES + inblocks*SPX_N);
+    SHA256_CTX sha2_state;
+    sha256_init(&sha2_state);
+    sha256_update(&sha2_state, (unsigned char *)addr, SPX_SHA256_ADDR_BYTES);
+    sha256_update(&sha2_state, in, inblocks*SPX_N);
+    sha256_final(&sha2_state, outbuf);
     memcpy(out, outbuf, SPX_N);
 }
 

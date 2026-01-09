@@ -428,7 +428,7 @@ static int crypto_hashblocks_sha512(unsigned char *statebytes,const unsigned cha
     f += state[5];
     g += state[6];
     h += state[7];
-  
+
     state[0] = a;
     state[1] = b;
     state[2] = c;
@@ -604,11 +604,12 @@ void sha512_inc_finalize(uint8_t *out, uint8_t *state, const uint8_t *in, size_t
     }
 }
 
+#include <quick_sha256.h>
 void sha256(uint8_t *out, const uint8_t *in, size_t inlen) {
-    uint8_t state[40];
-
-    sha256_inc_init(state);
-    sha256_inc_finalize(out, state, in, inlen);
+    SHA256_CTX sha2_state;
+    sha256_init(&sha2_state);
+    sha256_update(&sha2_state, (unsigned char *)in, inlen);
+    sha256_final(&sha2_state, out);
 }
 
 void sha512(uint8_t *out, const uint8_t *in, size_t inlen) {
