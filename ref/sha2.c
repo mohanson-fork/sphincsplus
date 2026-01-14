@@ -612,11 +612,12 @@ void sha256(uint8_t *out, const uint8_t *in, size_t inlen) {
     sha256_final(&sha2_state, out);
 }
 
+#include <quick_sha512.h>
 void sha512(uint8_t *out, const uint8_t *in, size_t inlen) {
-    uint8_t state[72];
-
-    sha512_inc_init(state);
-    sha512_inc_finalize(out, state, in, inlen);
+    SHA512_CTX sha2_state;
+    sha512_init(&sha2_state);
+    sha512_update(&sha2_state, (unsigned char *)in, inlen);
+    sha512_final(&sha2_state, out);
 }
 
 /**
